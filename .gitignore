@@ -1,0 +1,19 @@
+.DS_Store
+
+# VS Code
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Environment files
+.env
+.env.*
+
+# Model / large generated files
+*.pt
+*.pth
+*.onnx
