@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Reality Subtitles Demo</title>
+
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      background: #111;
+      color: white;
+
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      text-align: center;
+      width: 80%;
+    }
+
+    #subtitle {
+      font-size: 40px;
+      margin-bottom: 40px;
+    }
+
+    button {
+      padding: 15px 30px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <div id="subtitle">
+      Press Start and speak 🎤
+    </div>
+
+    <button id="startButton">
+      Start Listening
+    </button>
+
+  </div>
+
+
+  <script>
+
+    const subtitle = document.getElementById("subtitle");
+    const startButton = document.getElementById("startButton");
+
+    const SpeechRecognition =
+      window.SpeechRecognition ||
+      window.webkitSpeechRecognition;
+
+    const recognition = new SpeechRecognition();
+
+    recognition.continuous = true;
+
+    recognition.interimResults = true;
+
+    recognition.lang = "tr-TR";
+
+
+    recognition.onresult = (event) => {
+
+      let text = "";
+
+      for (
+        let i = event.resultIndex;
+        i < event.results.length;
+        i++
+      ) {
+
+        text += event.results[i][0].transcript;
+
+      }
+
+      subtitle.innerText = text;
+
+    };
+
+
+    startButton.addEventListener("click", () => {
+
+      recognition.start();
+
+      subtitle.innerText = "Listening... 🎤";
+
+    });
+
+  </script>
+
+</body>
+</html>
