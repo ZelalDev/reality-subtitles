@@ -4,6 +4,12 @@ An early-stage project exploring real-time Turkish subtitles, with a SwiftUI iOS
 
 The current iOS milestone is microphone access and audio recording. Live transcription and visual speech recognition are planned work.
 
+## App demo
+
+<p align="center">
+  <img src="docs/media/ios-app-demo.gif" alt="Reality Subtitles iOS app demo" width="300">
+</p>
+
 ## Current status
 
 | Component | Available today |
