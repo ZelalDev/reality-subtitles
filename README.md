@@ -2,7 +2,7 @@
 
 An early-stage project exploring real-time Turkish subtitles, with a SwiftUI iOS app and research into audio-visual speech recognition.
 
-The current iOS milestone is microphone access and audio recording. Live transcription and visual speech recognition are planned work.
+The current iOS app records audio and transcribes it into Turkish after recording stops, using WhisperKit with the multilingual base model and an explicit Turkish language setting (`tr`). Live transcription and visual speech recognition are planned work.
 
 ## App demo
 
@@ -14,7 +14,7 @@ The current iOS milestone is microphone access and audio recording. Live transcr
 
 | Component | Available today |
 | --- | --- |
-| iOS app | Microphone access, start/stop recording, and saving audio as `recording.m4a` |
+| iOS app | Microphone access, start/stop recording, saving audio as `recording.m4a`, and Turkish transcription after recording stops |
 | Web prototype | Turkish speech-to-text using the browser Web Speech API |
 | Research | Initial notes on speech recognition, datasets, and audio-visual approaches |
 
@@ -23,7 +23,7 @@ The current iOS milestone is microphone access and audio recording. Live transcr
 1. Clone this repository and open `ios/RealitySubtitles.xcodeproj` in Xcode.
 2. Select the **RealitySubtitles** scheme and an iPhone simulator or connected iPhone.
 3. For a physical device, select your signing team in **Signing & Capabilities**.
-4. Run the app, allow microphone access, and use **Kaydı Başlat** / **Kaydı Durdur** to record audio.
+4. Run the app, allow microphone access, and use **Kaydı Başlat** / **Kaydı Durdur** to record audio. After stopping, wait for the Turkish transcript to appear. The first transcription requires an internet connection to download the model.
 
 The project currently targets **iOS 27.0** and was verified with **Xcode 27.0**. Recordings are stored in the app's Documents directory. Each new recording uses the same `recording.m4a` filename.
 
@@ -65,7 +65,10 @@ These Turkish-language documents describe the initial proposal and planned scope
 
 - [x] Create the initial browser speech-to-text prototype.
 - [x] Build the SwiftUI iOS app with audio recording.
-- [ ] Add speech-to-text to the iOS app.
-- [ ] Compare speech recognition approaches, including Whisper.
+- [x] Add Turkish transcription after recording stops using WhisperKit's multilingual base model, with language fixed to `tr`.
+- [x] Display transcription progress, readable results, and transcription error messages in the iOS app.
+- [ ] Validate end-to-end transcription on a physical iPhone, including first-time model download, repeated recordings, silence, and error recovery.
+- [ ] Measure Turkish transcription accuracy and processing time; compare speech recognition approaches and model sizes.
+- [ ] Add live Turkish subtitles while recording; the current implementation transcribes only after recording stops.
 - [ ] Investigate visual speech recognition and suitable datasets.
-- [ ] Explore an audio-visual subtitle architecture.
+- [ ] Explore an audio-visual subtitle architecture based on the speech and visual recognition findings.
