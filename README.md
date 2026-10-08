@@ -1,30 +1,54 @@
 # Reality Subtitles
 
-Reality Subtitles is a research project exploring real-time subtitles using audio and visual speech information.
+An early-stage project exploring real-time Turkish subtitles, with a SwiftUI iOS app and research into audio-visual speech recognition.
 
-## Week 1
+The current iOS milestone is microphone access and audio recording. Live transcription and visual speech recognition are planned work.
 
-- Defined the initial project idea
-- Researched audio and visual speech recognition approaches
-- Investigated possible datasets
-- Built a simple real-time speech-to-text demo
+## Current status
 
-## Demo
+| Component | Available today |
+| --- | --- |
+| iOS app | Microphone access, start/stop recording, and saving audio as `recording.m4a` |
+| Web prototype | Turkish speech-to-text using the browser Web Speech API |
+| Research | Initial notes on speech recognition, datasets, and audio-visual approaches |
 
-The first demo converts microphone input into real-time Turkish subtitles using the Web Speech API.
+## Run the iOS app
 
-Demo location:
+1. Clone this repository and open `ios/RealitySubtitles.xcodeproj` in Xcode.
+2. Select the **RealitySubtitles** scheme and an iPhone simulator or connected iPhone.
+3. For a physical device, select your signing team in **Signing & Capabilities**.
+4. Run the app, allow microphone access, and use **Kaydı Başlat** / **Kaydı Durdur** to record audio.
 
-`demo/index.html`
+The project currently targets **iOS 27.0** and was verified with **Xcode 27.0**. Recordings are stored in the app's Documents directory. Each new recording uses the same `recording.m4a` filename.
 
-## Project Structure
+Build verification: the app, unit-test target, and UI-test target compiled successfully for iOS Simulator with signing disabled. This verifies compilation; it does not represent an automated microphone or recording test.
 
-- `Week-1/` → Week 1 research and project notes
-- `demo/` → Early prototypes and experiments
+## Explore the repository
 
-## Next Steps
+```text
+reality-subtitles/
+├── README.md
+├── ios/
+│   ├── RealitySubtitles/
+│   ├── RealitySubtitles.xcodeproj/
+│   ├── RealitySubtitlesTests/
+│   └── RealitySubtitlesUITests/
+├── demo/
+│   └── index.html
+└── docs/
+    └── progress/
+        └── week-01/
+```
 
-- Compare speech recognition alternatives such as Whisper
-- Research visual speech / lip-reading models
-- Design the first audio-visual system architecture
-- Explore audio-visual fusion methods
+- **[iOS app](ios/)** — current native application and its Xcode project.
+- **[Web prototype](demo/index.html)** — the initial Turkish subtitle experiment. Open it in a browser supporting the Web Speech API and allow microphone access; support varies by browser.
+- **[Week 1 research](docs/progress/week-01/Reality%20Subtitles%201.%20week.pdf)** — the original project notes, preserved for reference.
+
+## Roadmap
+
+- [x] Create the initial browser speech-to-text prototype.
+- [x] Build the SwiftUI iOS app with audio recording.
+- [ ] Add speech-to-text to the iOS app.
+- [ ] Compare speech recognition approaches, including Whisper.
+- [ ] Investigate visual speech recognition and suitable datasets.
+- [ ] Explore an audio-visual subtitle architecture.

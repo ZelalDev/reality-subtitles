@@ -17,3 +17,8 @@ venv/
 *.pt
 *.pth
 *.onnx
+
+# Xcode
+DerivedData/
+xcuserdata/
+*.xcuserstate
