@@ -6,6 +6,10 @@
 	objectVersion = 110;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		A11B00000000000000000001 /* WhisperKit in Frameworks */ = {isa = PBXBuildFile; productRef = A11B00000000000000000002 /* WhisperKit */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		B2D61F68307795C80056BC66 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -64,6 +68,7 @@
 		B2D61F57307795C60056BC66 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
+				A11B00000000000000000001 /* WhisperKit in Frameworks */,
 			);
 		};
 		B2D61F64307795C80056BC66 /* Frameworks */ = {
@@ -116,6 +121,9 @@
 				B2D61F5C307795C60056BC66 /* RealitySubtitles */,
 			);
 			name = RealitySubtitles;
+			packageProductDependencies = (
+				A11B00000000000000000002 /* WhisperKit */,
+			);
 			productName = RealitySubtitles;
 			productReference = B2D61F5A307795C60056BC66 /* RealitySubtitles.app */;
 			productType = "com.apple.product-type.application";
@@ -194,6 +202,9 @@
 			);
 			mainGroup = B2D61F51307795C60056BC66;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				A11B00000000000000000003 /* XCRemoteSwiftPackageReference "argmax-oss-swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B2D61F5B307795C60056BC66 /* Products */;
 			projectDirPath = "";
@@ -254,6 +265,25 @@
 			targetProxy = B2D61F72307795C80056BC66 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A11B00000000000000000003 /* XCRemoteSwiftPackageReference "argmax-oss-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/argmaxinc/argmax-oss-swift.git";
+			requirement = {
+				kind = exactVersion;
+				version = 1.1.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A11B00000000000000000002 /* WhisperKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A11B00000000000000000003 /* XCRemoteSwiftPackageReference "argmax-oss-swift" */;
+			productName = WhisperKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCBuildConfiguration section */
 		B2D61F77307795C80056BC66 /* Debug configuration for PBXProject "RealitySubtitles" */ = {
