@@ -44,12 +44,14 @@ reality-subtitles/
 └── docs/
     ├── project/
     └── progress/
-        └── week-01/
+        ├── week-01/
+        └── week-02/
 ```
 
 - **[iOS app](ios/)** — current native application and its Xcode project.
 - **[Web prototype](demo/index.html)** — the initial Turkish subtitle experiment. Open it in a browser supporting the Web Speech API and allow microphone access; support varies by browser.
 - **[Week 1 research](docs/progress/week-01/Reality%20Subtitles%201.%20week.pdf)** — the original project notes, preserved for reference.
+- **[Week 2 report](docs/progress/week-02/week-02-report.pdf)** — the second weekly progress report.
 
 ## Project documents
 
