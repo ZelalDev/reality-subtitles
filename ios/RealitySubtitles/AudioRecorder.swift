@@ -11,11 +11,42 @@ class AudioRecorder: NSObject, ObservableObject {
     )
 
     @Published private(set) var isRecording = false
+    @Published private(set) var isStarting = false
     @Published private(set) var recordedFileURL: URL?
 
-    func startRecording() {
+    private let temporaryRecordingsDirectory = FileManager.default.temporaryDirectory
+        .appendingPathComponent("RealitySubtitlesRecordings", isDirectory: true)
+
+    override init() {
+        super.init()
+        // Recover files left behind if the app was terminated during recording/transcription.
         audioQueue.async { [self] in
-            guard audioRecorder == nil else { return }
+            do { try removeTemporaryRecordings() }
+            catch { print("❌ Geçici kayıtlar temizlenemedi: \(error)") }
+        }
+    }
+
+    private func removeTemporaryRecordings() throws {
+        if FileManager.default.fileExists(atPath: temporaryRecordingsDirectory.path) {
+            try FileManager.default.removeItem(at: temporaryRecordingsDirectory)
+        }
+    }
+
+    func discardRecording(at url: URL) throws {
+        if FileManager.default.fileExists(atPath: url.path) {
+            try FileManager.default.removeItem(at: url)
+        }
+        if recordedFileURL == url { recordedFileURL = nil }
+    }
+
+    func startRecording() {
+        isStarting = true
+        audioQueue.async { [self] in
+            guard audioRecorder == nil else {
+                DispatchQueue.main.async { self.isStarting = false }
+                return
+            }
+            defer { DispatchQueue.main.async { self.isStarting = false } }
 
             let session = AVAudioSession.sharedInstance()
 
@@ -23,14 +54,9 @@ class AudioRecorder: NSObject, ObservableObject {
                 try session.setCategory(.record, mode: .default)
                 try session.setActive(true)
 
-                let documents = FileManager.default.urls(
-                    for: .documentDirectory,
-                    in: .userDomainMask
-                )[0]
-
-                let url = documents.appendingPathComponent(
-                    "recording.m4a"
-                )
+                try removeTemporaryRecordings()
+                try FileManager.default.createDirectory(at: temporaryRecordingsDirectory, withIntermediateDirectories: true)
+                let url = temporaryRecordingsDirectory.appendingPathComponent("\(UUID().uuidString).m4a")
 
                 let settings: [String: Any] = [
                     AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
@@ -69,6 +95,8 @@ class AudioRecorder: NSObject, ObservableObject {
 
             } catch {
                 audioRecorder = nil
+                do { try removeTemporaryRecordings() }
+                catch { print("❌ Geçici kayıt temizlenemedi: \(error)") }
 
                 do {
                     try session.setActive(
