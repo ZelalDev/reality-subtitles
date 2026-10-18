@@ -76,15 +76,3 @@ These Turkish-language documents describe the initial proposal and planned scope
 | [Project proposal (PDF)](docs/project/project-proposal.pdf) | Research question, proposed method, scope, and expected outputs |
 | [Six-month plan (Word)](docs/project/six-month-plan.docx) | 24-week plan, milestones, evaluation approach, and risks |
 | [Long-term vision (Word)](docs/project/long-term-vision.docx) | Future product directions beyond the initial iOS scope |
-
-## Roadmap
-
-- [x] Create the initial browser speech-to-text prototype.
-- [x] Build the SwiftUI iOS app with audio recording.
-- [x] Add Turkish transcription after recording stops using WhisperKit's multilingual tiny model, with language fixed to `tr`.
-- [x] Display transcription progress, readable results, and transcription error messages in the iOS app.
-- [ ] Validate end-to-end transcription on a physical iPhone, including first-time model download, repeated recordings, silence, and error recovery.
-- [ ] Measure Turkish transcription accuracy and processing time; compare speech recognition approaches and model sizes.
-- [ ] Add live Turkish subtitles while recording; the current implementation transcribes only after recording stops.
-- [ ] Investigate visual speech recognition and suitable datasets.
-- [ ] Explore an audio-visual subtitle architecture based on the speech and visual recognition findings.
