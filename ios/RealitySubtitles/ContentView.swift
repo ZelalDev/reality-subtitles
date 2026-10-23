@@ -1,11 +1,9 @@
 import SwiftUI
-import AVFoundation
 
 struct ContentView: View {
 
     @StateObject private var recorder = AudioRecorder()
-    @StateObject private var benchmarks = BenchmarkStore()
-    @State private var processingTime: Double?
+    @AppStorage("selectedWhisperModel") private var selectedModel: WhisperModel = .tiny
 
     @State private var transcriber = AudioTranscriber()
     @State private var isTranscribing = false
@@ -14,10 +12,26 @@ struct ContentView: View {
 
     var body: some View {
         VStack(spacing: 32) {
-            Text("Reality Subtitles")
+            Text("Duy Beni")
                 .font(.title2.weight(.semibold))
                 .foregroundStyle(.black)
                 .padding(.top, 24)
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Model")
+                    .font(.subheadline.weight(.semibold))
+                Picker("Model", selection: $selectedModel) {
+                    ForEach(WhisperModel.allCases, id: \.self) { model in
+                        Text(model.displayName).tag(model)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .disabled(isTranscribing || recorder.isRecording || recorder.isStarting)
+
+                Text("Seçilen model ilk kullanımda indirilir; internet bağlantısı gerekir.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
@@ -37,11 +51,6 @@ struct ContentView: View {
                             .foregroundStyle(.red)
                     }
 
-                    if let processingTime {
-                        Text("İşlem süresi: \(BenchmarkStore.seconds(processingTime)) saniye")
-                            .font(.subheadline.monospacedDigit())
-                    }
-
                     if !transcription.isEmpty {
                         Text(transcription)
                             .font(.title2)
@@ -50,13 +59,9 @@ struct ContentView: View {
                             .multilineTextAlignment(.leading)
                             .textSelection(.enabled)
                     }
-                    Text("Ses kaydı işlemden sonra silinir. CSV’de son 10 sonuç tutulur.")
+                    Text("Ses kaydı işlemden sonra silinir.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
-                    if benchmarks.hasResults {
-                        ShareLink("CSV sonuçlarını paylaş", item: benchmarks.resultsURL)
-                            .disabled(isTranscribing || recorder.isRecording || recorder.isStarting)
-                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(24)
@@ -73,7 +78,6 @@ struct ContentView: View {
                         isTranscribing = true
                         transcription = ""
                         errorMessage = nil
-                        processingTime = nil
                         recorder.stopRecording()
                     } else {
                         recorder.startRecording()
@@ -101,10 +105,6 @@ struct ContentView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(.white)
         .preferredColorScheme(.light)
-        .task {
-            do { try benchmarks.refresh() }
-            catch { errorMessage = error.localizedDescription }
-        }
         .onChange(of: recorder.isRecording) { wasRecording, isRecording in
             // stopRecording publishes false only after closing the temporary audio file.
             guard wasRecording, !isRecording, isTranscribing else { return }
@@ -131,22 +131,9 @@ struct ContentView: View {
             isTranscribing = false
         }
         transcription = ""
-        processingTime = nil
         errorMessage = nil
         do {
-            // Metadata reading is outside the measured WhisperKit call.
-            let audioDuration = try await AVURLAsset(url: url).load(.duration).seconds
-            guard audioDuration.isFinite, audioDuration >= 0 else {
-                throw CocoaError(.fileReadCorruptFile)
-            }
-            let result = try await transcriber.transcribe(url)
-            transcription = result.text
-            processingTime = result.processingTime
-            do {
-                try benchmarks.appendResult(result, audioURL: url, audioDuration: audioDuration)
-            } catch {
-                errorMessage = "CSV sonucu kaydedilemedi: \(error.localizedDescription)"
-            }
+            transcription = try await transcriber.transcribe(url, model: selectedModel)
             if transcription.isEmpty, errorMessage == nil {
                 errorMessage = "Konuşma algılanamadı. Lütfen tekrar deneyin."
             }

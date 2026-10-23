@@ -21,7 +21,10 @@ class AudioRecorder: NSObject, ObservableObject {
         super.init()
         // Recover files left behind if the app was terminated during recording/transcription.
         audioQueue.async { [self] in
-            do { try removeTemporaryRecordings() }
+            do {
+                try removeTemporaryRecordings()
+                try removeLegacyRecordings()
+            }
             catch { print("❌ Geçici kayıtlar temizlenemedi: \(error)") }
         }
     }
@@ -29,6 +32,16 @@ class AudioRecorder: NSObject, ObservableObject {
     private func removeTemporaryRecordings() throws {
         if FileManager.default.fileExists(atPath: temporaryRecordingsDirectory.path) {
             try FileManager.default.removeItem(at: temporaryRecordingsDirectory)
+        }
+    }
+
+    private func removeLegacyRecordings() throws {
+        let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        for name in ["recording.m4a", "BenchmarkRecordings", "benchmark-next-number.txt"] {
+            let url = documents.appendingPathComponent(name)
+            if FileManager.default.fileExists(atPath: url.path) {
+                try FileManager.default.removeItem(at: url)
+            }
         }
     }
 

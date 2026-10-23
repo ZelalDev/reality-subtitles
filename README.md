@@ -1,13 +1,13 @@
-# Reality Subtitles
+# Duy Beni
 
 An early-stage project exploring real-time Turkish subtitles, with a SwiftUI iOS app and research into audio-visual speech recognition.
 
-The current iOS app records audio and transcribes it into Turkish after recording stops, using WhisperKit with the multilingual tiny model and an explicit Turkish language setting (`tr`). Live transcription and visual speech recognition are planned work.
+The current iOS app records audio and transcribes it into Turkish after recording stops, using WhisperKit with a user-selected multilingual Tiny or Base model and an explicit Turkish language setting (`tr`). Live transcription and visual speech recognition are planned work.
 
 ## App demo
 
 <p align="center">
-  <img src="docs/media/ios-app-demo.gif" alt="Reality Subtitles iOS app demo" width="300">
+  <img src="docs/media/ios-app-demo.gif" alt="Duy Beni iOS app demo" width="300">
 </p>
 
 ## Current status
@@ -23,23 +23,37 @@ The current iOS app records audio and transcribes it into Turkish after recordin
 1. Clone this repository and open `ios/RealitySubtitles.xcodeproj` in Xcode.
 2. Select the **RealitySubtitles** scheme and an iPhone simulator or connected iPhone.
 3. For a physical device, select your signing team in **Signing & Capabilities**.
-4. Run the app, allow microphone access, and use **Kaydı Başlat** / **Kaydı Durdur** to record audio. After stopping, wait for the Turkish transcript to appear. The first transcription requires an internet connection to download the model.
+4. Run the app, select **Whisper Tiny** or **Whisper Base**, allow microphone access, and use **Kaydı Başlat** / **Kaydı Durdur** to record audio. After stopping, wait for the Turkish transcript to appear. The first transcription requires an internet connection to download the selected model. Your selection is saved between launches; model selection is disabled during recording and transcription.
 
 The project currently targets **iOS 27.0** and was verified with **Xcode 27.0**. Audio is captured in the app's temporary directory and deleted after transcription, including on failure. Interrupted recordings are cleaned up on the next launch. Older audio in `Documents/recording.m4a` and `Documents/BenchmarkRecordings` is removed on startup.
 
-Build verification: the app, unit-test target, and UI-test target compiled successfully for iOS Simulator with signing disabled. This verifies compilation; it does not represent an automated microphone or recording test.
+Build verification: the complete app, including the model selector and Lip Reading screens, built successfully for a generic iOS device with Xcode 27.1 and code signing disabled. Camera tracking and transcription with both models still need physical-device verification.
 
-## Benchmark Whisper Tiny
+## Model selection
 
-Processing time appears below the transcript and in the Xcode console with three decimal places. A monotonic `ContinuousClock` surrounds only the existing WhisperKit transcription call, excluding recording, model download/loading, audio-duration lookup, and CSV writing. It includes the work WhisperKit performs inside its file-transcription call.
+The app offers exactly two models: **Whisper Tiny** (`openai_whisper-tiny`) and **Whisper Base** (`openai_whisper-base`). Both use Turkish decoding (`tr`). Tiny is the default. Changing the selection loads the chosen model on the next transcription and releases the previous model from the transcriber.
 
-1. Record a short sample using **Kaydı Başlat**, then **Kaydı Durdur**, and wait for transcription to finish.
-2. Every successful transcription saves its model, temporary audio filename, audio duration, processing time, and Turkish transcript to `Documents/benchmark-results.csv`. Only the latest 10 results are retained; older rows are removed on startup and after each new result.
-3. Tap **CSV sonuçlarını paylaş** to export the results through the iOS share sheet.
+The app does not measure processing time or write/export benchmark CSV results. Temporary audio is deleted after processing, including on failure.
 
-Audio files are never retained for replay. The temporary file is deleted after processing even if transcription or CSV writing fails. The filename in CSV is only an identifier. Earlier saved benchmark recordings and their numbering counter are removed automatically on startup, while CSV results are preserved within the 10-result limit.
+## Lip Reading (face and lip detection)
 
-The app uses `openai_whisper-tiny` with Turkish decoding. For meaningful device comparisons, use the same iPhone and build configuration; these measurements do not automatically warm up or optimize the model.
+The home screen offers **Speech-to-Text** (the existing transcription screen) and **Lip Reading**. Lip Reading uses the rear camera and Apple Vision to outline the lips of the largest visible face in green. It does not predict words or include a lip-reading AI model.
+
+Tap **Kamerayı Başlat** to request camera permission and begin the preview. **Durdur**, leaving the screen, or moving the app to the background stops capture and analysis. After a background transition or camera interruption, tap Start again. Denied permission shows an explanation and a Settings button.
+
+Camera frames are processed only in memory. This feature has no photo/video file output, cache, database, or network upload. A serial background queue runs Vision at most eight times per second, discards late frames, and releases each frame's processing objects after analysis. Only lip coordinates, image dimensions, and the latest rendered 96×96 lip crop are sent to the UI. A small preview below the camera shows the crop live. Crops use a square region with a small margin, preserving proportions, and are rendered as sRGB RGBA8 images. A timestamped RAM buffer retains at most 16 frames and less than two seconds of samples, oldest first. Detection loss or camera stop clears the buffer and preview. Full camera frames are never retained in this buffer. No model inference is performed. The existing speech recording and transcription flow is separate.
+
+Physical-device verification checklist:
+
+- Grant camera permission, start the camera, and confirm the rear-camera preview.
+- Move a face and lips in/out of view; check the green outline and both detection labels.
+- Check that the 96×96 preview follows the same lips as the green outline, including near image edges.
+- Hide the face and stop/restart repeatedly; confirm both the crop and outline clear and the camera indicator turns off when stopped.
+- Leave the screen, lock the phone, or background the app during capture or the permission prompt; verify capture stops and does not automatically restart.
+- Deny camera permission, then enable it in Settings and retry.
+- Test a camera interruption and verify that restarting works.
+- Open Speech-to-Text and transcribe with both existing model options.
+- Profile memory and CPU on a real device during a prolonged session; confirm memory does not grow with captured frames.
 
 ## Explore the repository
 
@@ -58,7 +72,8 @@ reality-subtitles/
     └── progress/
         ├── week-01/
         ├── week-02/
-        └── week-03/
+        ├── week-03/
+        └── week-04/
 ```
 
 - **[iOS app](ios/)** — current native application and its Xcode project.
@@ -66,6 +81,8 @@ reality-subtitles/
 - **[Week 1 research](docs/progress/week-01/Reality%20Subtitles%201.%20week.pdf)** — the original project notes, preserved for reference.
 - **[Week 2 report](docs/progress/week-02/week-02-report.pdf)** — the second weekly progress report.
 - **Week 3 documents** — [Document 2](docs/progress/week-03/week%203%20%282%29.pdf) and [Document 3](docs/progress/week-03/week%203%20%283%29.pdf).
+
+- **[Week 4 report](docs/progress/week-04/week-04-report.pdf)** — model selection, Duy Beni branding, lip detection, and in-memory lip-frame preparation.
 
 ## Project documents
 
@@ -76,3 +93,10 @@ These Turkish-language documents describe the initial proposal and planned scope
 | [Project proposal (PDF)](docs/project/project-proposal.pdf) | Research question, proposed method, scope, and expected outputs |
 | [Six-month plan (Word)](docs/project/six-month-plan.docx) | 24-week plan, milestones, evaluation approach, and risks |
 | [Long-term vision (Word)](docs/project/long-term-vision.docx) | Future product directions beyond the initial iOS scope |
+
+Crop and buffer checks (macOS):
+
+```sh
+xcrun swiftc ios/RealitySubtitles/LipFrameBuffer.swift tests/LipFrameBufferChecks.swift -o /tmp/lip-frame-checks
+/tmp/lip-frame-checks
+```

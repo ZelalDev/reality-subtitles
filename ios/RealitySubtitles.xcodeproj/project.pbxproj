@@ -266,25 +266,6 @@
 		};
 /* End PBXTargetDependency section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		A11B00000000000000000003 /* XCRemoteSwiftPackageReference "argmax-oss-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/argmaxinc/argmax-oss-swift.git";
-			requirement = {
-				kind = exactVersion;
-				version = 1.1.0;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		A11B00000000000000000002 /* WhisperKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = A11B00000000000000000003 /* XCRemoteSwiftPackageReference "argmax-oss-swift" */;
-			productName = WhisperKit;
-		};
-/* End XCSwiftPackageProductDependency section */
-
 /* Begin XCBuildConfiguration section */
 		B2D61F77307795C80056BC66 /* Debug configuration for PBXProject "RealitySubtitles" */ = {
 			isa = XCBuildConfiguration;
@@ -418,8 +399,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = RealitySubtitles/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Reality Subtitles, konuşmanızı yazıya dönüştürmek için mikrofon erişimine ihtiyaç duyar.";
+				INFOPLIST_KEY_CFBundleDisplayName = "Duy Beni";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Duy Beni, konuşmanızı yazıya dönüştürmek için mikrofon erişimine ihtiyaç duyar.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -453,8 +434,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = RealitySubtitles/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Reality Subtitles, konuşmanızı yazıya dönüştürmek için mikrofon erişimine ihtiyaç duyar.";
+				INFOPLIST_KEY_CFBundleDisplayName = "Duy Beni";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Duy Beni, konuşmanızı yazıya dönüştürmek için mikrofon erişimine ihtiyaç duyar.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -597,6 +578,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A11B00000000000000000003 /* XCRemoteSwiftPackageReference "argmax-oss-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/argmaxinc/argmax-oss-swift.git";
+			requirement = {
+				kind = exactVersion;
+				version = 1.1.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A11B00000000000000000002 /* WhisperKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A11B00000000000000000003 /* XCRemoteSwiftPackageReference "argmax-oss-swift" */;
+			productName = WhisperKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B2D61F52307795C60056BC66 /* Project object */;
 	validationLevel = 1;

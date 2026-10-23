@@ -1,24 +1,41 @@
 import Foundation
 import WhisperKit
 
-nonisolated struct TranscriptionMeasurement: Sendable {
-    let modelName: String
-    let text: String
-    let processingTime: Double
+nonisolated enum WhisperModel: String, CaseIterable, Sendable {
+    case tiny
+    case base
+
+    var displayName: String {
+        switch self {
+        case .tiny: "Whisper Tiny"
+        case .base: "Whisper Base"
+        }
+    }
+
+    var modelName: String {
+        switch self {
+        case .tiny: "openai_whisper-tiny"
+        case .base: "openai_whisper-base"
+        }
+    }
 }
 
 // Keeps model loading and file transcription separate from the recorder and UI.
 actor AudioTranscriber {
     private var whisperKit: WhisperKit?
+    private var loadedModel: WhisperModel?
 
-    func transcribe(_ url: URL) async throws -> TranscriptionMeasurement {
-        if whisperKit == nil {
-            // Exact multilingual tiny variant; downloaded on first use.
+    func transcribe(_ url: URL, model: WhisperModel) async throws -> String {
+        if whisperKit == nil || loadedModel != model {
+            // Release the previous model before loading the selected one.
+            whisperKit = nil
+            loadedModel = nil
             whisperKit = try await WhisperKit(WhisperKitConfig(
-                model: "openai_whisper-tiny",
+                model: model.modelName,
                 load: true,
                 download: true
             ))
+            loadedModel = model
         }
 
         guard let whisperKit else {
@@ -32,23 +49,12 @@ actor AudioTranscriber {
             detectLanguage: false,
             skipSpecialTokens: true
         )
-        // Monotonic wall time for this call only; model loading above is excluded.
-        let clock = ContinuousClock()
-        let start = clock.now
         let results = try await whisperKit.transcribe(
             audioPath: url.path,
             decodeOptions: options
         )
-        let elapsed = start.duration(to: clock.now).components
-        let seconds = Double(elapsed.seconds) + Double(elapsed.attoseconds) / 1e18
-        print(String(format: "Processing time: %.3f seconds", locale: Locale(identifier: "en_US_POSIX"), seconds))
-
-        return TranscriptionMeasurement(
-            modelName: "Tiny",
-            text: results.map { $0.text }
-                .joined(separator: " ")
-                .trimmingCharacters(in: .whitespacesAndNewlines),
-            processingTime: seconds
-        )
+        return results.map { $0.text }
+            .joined(separator: " ")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
