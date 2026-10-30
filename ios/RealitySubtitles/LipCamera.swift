@@ -8,6 +8,8 @@ nonisolated struct LipDetection: Sendable {
     let rect: CGRect?
     let imageSize: CGSize
     let lipImage: CGImage?
+    var motion = LipMotion()
+    var frames: [LipFrame] = []
 }
 
 @MainActor
@@ -89,6 +91,7 @@ nonisolated final class LipCameraWorker: NSObject, AVCaptureVideoDataOutputSampl
     private var observers: [NSObjectProtocol] = []
     private let cropContext = CIContext(options: [.cacheIntermediates: false])
     private var frameBuffer = LipFrameBuffer()
+    private var motion = LipMotion()
 
     // Future model integration can read a bounded chronological snapshot here.
     // The completion runs on the camera queue, never on the UI thread.
@@ -102,6 +105,7 @@ nonisolated final class LipCameraWorker: NSObject, AVCaptureVideoDataOutputSampl
             self.receive = receive
             lastAnalysis = -.infinity
             frameBuffer.clear()
+            motion.clear()
             do {
                 if output == nil { try configure() }
                 session.startRunning()
@@ -121,6 +125,7 @@ nonisolated final class LipCameraWorker: NSObject, AVCaptureVideoDataOutputSampl
             runID = nil
             receive = nil
             frameBuffer.clear()
+            motion.clear()
             cropContext.clearCaches()
             if session.isRunning { session.stopRunning() }
         }
@@ -171,6 +176,7 @@ nonisolated final class LipCameraWorker: NSObject, AVCaptureVideoDataOutputSampl
         autoreleasepool {
             guard let buffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
                 frameBuffer.clear()
+                motion.clear()
                 receive?(runID, .detected(LipDetection(rect: nil, imageSize: .zero, lipImage: nil)))
                 return
             }
@@ -187,10 +193,25 @@ nonisolated final class LipCameraWorker: NSObject, AVCaptureVideoDataOutputSampl
                 } else {
                     // Do not combine separate visible speech segments across a detection gap.
                     frameBuffer.clear()
+                    motion.clear()
                 }
-                receive?(runID, .detected(LipDetection(rect: rect, imageSize: size, lipImage: crop)))
+                let opening = face.flatMap { face -> Double? in
+                    guard crop != nil, let outer = face.landmarks?.outerLips,
+                          let inner = face.landmarks?.innerLips else { return nil }
+                    func pixels(_ region: VNFaceLandmarkRegion2D) -> [CGPoint] {
+                        region.normalizedPoints.map {
+                            CGPoint(x: CGFloat($0.x) * face.boundingBox.width * size.width,
+                                    y: CGFloat($0.y) * face.boundingBox.height * size.height)
+                        }
+                    }
+                    return LipMotion.opening(outer: pixels(outer), inner: pixels(inner))
+                }
+                motion.append(opening: opening, at: timestamp)
+                receive?(runID, .detected(LipDetection(rect: rect, imageSize: size, lipImage: crop,
+                                                     motion: motion, frames: frameBuffer.frames)))
             } catch {
                 frameBuffer.clear()
+                motion.clear()
                 receive?(runID, .detected(LipDetection(rect: nil, imageSize: size, lipImage: nil)))
             }
         }

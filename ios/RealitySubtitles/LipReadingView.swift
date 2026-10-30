@@ -1,4 +1,5 @@
 import SwiftUI
+import Charts
 import AVFoundation
 import UIKit
 
@@ -54,6 +55,8 @@ struct LipReadingView: View {
                     .font(.headline)
                     .foregroundStyle(camera.detection?.rect == nil ? Color.secondary : .green)
 
+                motionPanel
+
                 if let message = camera.message {
                     Text(message).font(.subheadline).foregroundStyle(.secondary)
                 }
@@ -72,7 +75,7 @@ struct LipReadingView: View {
                 .buttonStyle(.borderedProminent)
                 .tint(.red)
 
-                Text("Yalnızca yüz ve dudak tespiti yapılır; kelime tahmini yapılmaz. Görüntüler kaydedilmez ve hiçbir sunucuya gönderilmez.")
+                Text("Dudak hareketi geometrik olarak ölçülür; konuşma tespiti veya kelime tahmini yapılmaz. Görüntüler kaydedilmez ve hiçbir sunucuya gönderilmez.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
@@ -89,6 +92,50 @@ struct LipReadingView: View {
             camera.stop()
         }
     }
+
+    private var motionPanel: some View {
+        let motion = camera.detection?.motion ?? LipMotion()
+        let frames = camera.detection?.frames ?? []
+        let end = motion.samples.last?.timestamp ?? 0
+        return VStack(alignment: .leading, spacing: 12) {
+            Text("Dudak hareketi analizi").font(.headline)
+            Text(motion.samples.isEmpty ? "Ölçüm bekleniyor" :
+                 !motion.hasEnoughSamples ? "Ölçüm toplanıyor…" :
+                 motion.hasMovement ? "Hareket gözlendi" : "Hareket düşük")
+                .foregroundStyle(motion.hasMovement ? Color.green : .secondary)
+            Chart(Array(motion.samples.enumerated()), id: \.offset) { item in
+                LineMark(x: .value("Saniye", item.element.timestamp - end),
+                         y: .value("Açıklık oranı", item.element.opening))
+            }
+            .chartXScale(domain: -2.0...0.0)
+            .chartYScale(domain: 0.0...max(0.6, (motion.samples.map(\.opening).max() ?? 0) + 0.1))
+            .chartXAxisLabel("Son 2 saniye")
+            .chartYAxisLabel("Açıklık / genişlik")
+            .frame(height: 150)
+            Text("İç dudak açıklığının ağız genişliğine oranı. Hareket göstergesi deneysel bir eşik kullanır; konuşulduğu anlamına gelmez.")
+                .font(.caption).foregroundStyle(.secondary)
+            Text("Geçici tampon: \(frames.count) / 16 kare").font(.subheadline.bold())
+            if let first = frames.first, let last = frames.last {
+                Text(String(format: "Kapsanan süre: %.2f saniye • 96 × 96 piksel", last.timestamp - first.timestamp))
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+            ScrollView(.horizontal) {
+                HStack(spacing: 6) {
+                    ForEach(Array(frames.enumerated()), id: \.offset) { item in
+                        Image(decorative: item.element.image, scale: 1)
+                            .resizable().frame(width: 48, height: 48)
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                    }
+                }
+            }
+            .accessibilityLabel("En eskiden en yeniye geçici dudak kareleri")
+            Text("Kareler yalnızca bellekte tutulur; tespit kaybolduğunda veya kamera durduğunda temizlenir.")
+                .font(.caption).foregroundStyle(.secondary)
+        }
+        .padding(16)
+        .background(Color.gray.opacity(0.07), in: RoundedRectangle(cornerRadius: 16))
+    }
+
 }
 
 private struct CameraPreview: UIViewRepresentable {

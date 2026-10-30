@@ -100,3 +100,18 @@ Crop and buffer checks (macOS):
 xcrun swiftc ios/RealitySubtitles/LipFrameBuffer.swift tests/LipFrameBufferChecks.swift -o /tmp/lip-frame-checks
 /tmp/lip-frame-checks
 ```
+
+### Week 5 — dudak hareketi analizi
+
+Lip Reading ekranında son iki saniyelik ağız açıklığı grafiği, deneysel hareket göstergesi ve geçici dudak kareleri şeridi bulunur. Oran, iç dudak açıklığının dış dudak genişliğine bölünmesiyle hesaplanır. Bu özellik konuşma tespiti veya Türkçe kelime tanıma yapmaz. En fazla 16 örnek tutulur; tespit kaybında ve kamera durdurulduğunda geçmiş temizlenir.
+
+Yeni geometri ve zaman serisi kontrolleri:
+
+```sh
+xcrun swiftc ios/RealitySubtitles/LipMotion.swift tests/LipMotionChecks.swift -o /tmp/lip-motion-checks
+/tmp/lip-motion-checks
+```
+
+30 Ekim 2026: Hareket kontrolleri ve mevcut kırpma/tampon kontrolleri geçti. Genel iOS hedefi için imzasız Xcode derlemesi başarılı. Fiziksel iPhone üzerinde yeni arayüz ve kamera davranışı henüz doğrulanmadı.
+
+[Week 5 raporu](docs/progress/week-05/week-05-report.pdf) · [Gösterim ve cihaz kontrol rehberi](docs/progress/week-05/demo-ve-kontroller.md)
